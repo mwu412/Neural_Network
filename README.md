@@ -6,6 +6,8 @@ Credits: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralne
 
 ![](./figures/3layers.PNG)
 
+![](./figures/network2.PNG)
+
 ```python
 import numpy
 # scipy.special for the sigmoid function expit()
