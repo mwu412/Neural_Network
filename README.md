@@ -6,7 +6,7 @@ Credits: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralne
 
 ![](./figures/3layers.PNG)
 
-![](./figures/network2.PNG)
+![](./figures/network2.jpg)
 
 ```python
 import numpy
