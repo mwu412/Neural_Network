@@ -107,5 +107,8 @@ n.query([1.0, 0.5, -1.5])
 ### NTU Course - Intelligent Control HW3
 
 ![](./figures/hw3.PNG)
+
 Solving the logical operation XOR (Exclusive-OR) using two structures above.
+
+Please refer to **HW3.pdf** and **hw3_x.py** 
 
