@@ -112,7 +112,12 @@ Solving the logical operation XOR (Exclusive-OR) using two structures above.
 
 Thresholds are added as negative inputs:
 
-![](./figures/network.jpg)
+![](./figures/network.png)
 
-Please refer to **HW3.pdf** and **hw3_x.py** 
+Convergence of sum-squared-error:
+
+![](./figures/2_1_3000.png)
+![](./figures/2_1_1000_1.png)
+
+For details please refer to **HW3.pdf** and **hw3_x.py** 
 
