@@ -6,7 +6,7 @@ Credits: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralne
 
 ![](./figures/3layers.PNG)
 
-![](./figures/network2.jpg)
+![](./figures/network_basic.jpg)
 
 ```python
 import numpy
@@ -109,6 +109,10 @@ n.query([1.0, 0.5, -1.5])
 ![](./figures/hw3.PNG)
 
 Solving the logical operation XOR (Exclusive-OR) using two structures above.
+
+Thresholds are added as negative inputs:
+
+![](./figures/network.jpg)
 
 Please refer to **HW3.pdf** and **hw3_x.py** 
 
