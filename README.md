@@ -110,8 +110,7 @@ n.query([1.0, 0.5, -1.5])
 
 Solving the logical operation XOR (Exclusive-OR) using two structures above.
 
-#### Thresholds are added as negative inputs:
-Thresholds will be updated just like weights.
+Thresholds are added as negative inputs:
 
 ![](./figures/network.png)
 
