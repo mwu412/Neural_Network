@@ -1,5 +1,8 @@
 import numpy as np
 
+import random
+import math
+
 # scipy.special for the sigmoid function expit()
 import scipy.special
 
@@ -8,15 +11,46 @@ import matplotlib.pyplot as plt
 
 class neuralNetwork:
     
-    def __init__(self, learningrate):
+    def __init__(self, learningrate, extra_h):
+
+        # extra_h: number of extra hidden layer nodes
         
         # w_i_j, from node i to node j in the next layer
-        # The input to the first input node is -1 (to generate thresholds(theta))
 
+        # Review: If no extra hidden layer:
         # [theta 31=1, theta 32, theta 33], [W21=0, W22, W23], [W11=0, W12, W13] 
-        self.wih = np.array([[1.0, 0.8, -0.1], [0, 0.2, -0.4], [0, 0.2, -0.2]]) 
-        # [theta, W2, W3]
-        self.who = np.array([[0.3, 0.1, -0.4]])
+        # self.wih = np.array([[1.0, 0.8, -0.1], [0.0, 0.2, -0.4], [0.0, 0.2, -0.2]]) 
+        
+        wih_size = extra_h + 3  # 3 = 2 input nodes (x and y) + 1 threshold node 
+        self.wih = np.zeros((wih_size, wih_size)) 
+        
+        # can try random values in the future 
+        initial_thresholds = 1.0
+        initial_weights = 1.0
+
+        # W11, W12, W13...
+
+        # 1, initial_thresholds, initial_thresholds...
+        # 0, initial_weights, initial_weights... 
+        # 0, initial_weights, initial_weights...         
+        # 0, 0, 0...
+        # 0
+        # 0
+        # .
+        # .
+        # .
+        self.wih[0, 0] = 1.0
+
+        for x in range(1, extra_h):
+            self.wih[1, x] = initial_thresholds
+            self.wih[2, x] = initial_weights
+            self.wih[3, x] = initial_weights
+
+        # initial_thresholds, initial_weights, initial_weights...
+        self.who = [initial_thresholds]
+        for x in range(1, wih_size):
+            self.who += [initial_weights]
+        self.who = np.array(self.who, ndmin=2)
 
         # learning rate
         self.lr = learningrate
@@ -76,30 +110,56 @@ class neuralNetwork:
 
 
 def main():
-    input_list = []
-    target_list = []
+    # target function with 2 variables(x and y) 
+    target_func = lambda x, y: math.cos(0.7*x+2.0*y) + 0.8*x*y
+
+    # x range
+    x_start = -1
+    x_end = 1
+
+    # y range
+    y_start = -1
+    y_end = 1
+
+    # x, y step number in the range
+    step = 10
 
     # Number of Epoch
-    epoch = 1000
+    epoch = 10
 
     # learning rate
     learing_rate = 1
 
+    # numbers of extra hidden nodes
+    extra_h = 10
+
     # Inputs & Targets
-    input_list.append([-1, -1]); target_list.append(0)
-    input_list.append([-1, 1]); target_list.append(1)
-    input_list.append([1, -1]); target_list.append(1)
-    input_list.append([1, 1]); target_list.append(0)
+    input_list =[]
+    target_list = []
+
+    x = x_start
+    y = y_start
+
+    for i in range(step):
+        input_list.append([x, y])
+        target_list.append(target_func(x, y))
+        x += (x_end - x_start)/step
+        y += (y_end - y_start)/step
 
     # Create an instance of neuralNetwork with the learning rate specified
-    nn = neuralNetwork(learing_rate)
+    nn = neuralNetwork(learing_rate, extra_h)
     
     # Add the threshold input
     for i in range(len(input_list)):
         input_list[i] = [-1] + input_list[i]
 
+    # Add exta hidden nodes inputs = 0
+    for i in range(len(input_list)):
+        for k in range(extra_h):
+            input_list[i] += [0]
+
     # Plot the Sum-Squared Error - Epoch
-    plt.axis([0, epoch+1, 0, 1.1])
+    plt.axis([0, epoch+1, -0.1, 1.1])
     plt.title('Sum-Squared Error - Epoch\n Learing Rate = 0.1')
     plt.xlabel('Epoch')
     plt.ylabel('Sum-Squared Error')
