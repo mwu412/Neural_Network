@@ -122,16 +122,16 @@ def main():
     y_end = 1
 
     # x, y step number in the range
-    step = 10
+    step = 100
 
     # Number of Epoch
-    epoch = 10
+    epoch = 100
 
     # learning rate
     learing_rate = 1
 
     # numbers of extra hidden nodes
-    extra_h = 10
+    extra_h = 5000
 
     # Inputs & Targets
     input_list =[]
@@ -146,7 +146,7 @@ def main():
         x += (x_end - x_start)/step
         y += (y_end - y_start)/step
 
-    # Create an instance of neuralNetwork with the learning rate specified
+    # Create an instance of neuralNetwork with the learning rate & numbers of hidden nodes specified
     nn = neuralNetwork(learing_rate, extra_h)
     
     # Add the threshold input
@@ -159,13 +159,13 @@ def main():
             input_list[i] += [0]
 
     # Plot the Sum-Squared Error - Epoch
-    plt.axis([0, epoch+1, -0.1, 1.1])
-    plt.title('Sum-Squared Error - Epoch\n Learing Rate = 0.1')
+    # plt.axis([0, epoch+1, 0, 6])
+    plt.title('Sum-Squared Error - Epoch\n Learing Rate = 1')
     plt.xlabel('Epoch')
     plt.ylabel('Sum-Squared Error')
 
     # Train & Plot
-    for x in range(0, epoch):
+    for m in range(0, epoch):
         for i in range(len(input_list)):
             nn.train(input_list[i], target_list[i])  
         
@@ -174,7 +174,7 @@ def main():
         for i in range(len(input_list)):
             sum_squared_errors += (nn.query(input_list[i])-target_list[i])**2
 
-        plt.scatter(x+1, sum_squared_errors)
+        plt.scatter(m+1, sum_squared_errors)
 
     plt.show()
 
