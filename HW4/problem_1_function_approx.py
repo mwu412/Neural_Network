@@ -56,7 +56,9 @@ class neuralNetwork:
         self.lr = learningrate
         
         # activation function: sigmoid function
-        self.activation_function = lambda x: scipy.special.expit(x)
+        # self.activation_function = lambda x: scipy.special.expit(x)
+        self.activation_function = lambda x: 2*scipy.special.expit(x)-1
+
         
         pass
 
@@ -131,7 +133,7 @@ def main():
     learing_rate = 1
 
     # numbers of extra hidden nodes
-    extra_h = 5000
+    extra_h = 10
 
     # Inputs & Targets
     input_list =[]
@@ -153,7 +155,7 @@ def main():
     for i in range(len(input_list)):
         input_list[i] = [-1] + input_list[i]
 
-    # Add exta hidden nodes inputs = 0
+    # Add extra hidden nodes inputs = 0
     for i in range(len(input_list)):
         for k in range(extra_h):
             input_list[i] += [0]
@@ -165,7 +167,7 @@ def main():
     plt.ylabel('Sum-Squared Error')
 
     # Train & Plot
-    for m in range(0, epoch):
+    for m in range(epoch):
         for i in range(len(input_list)):
             nn.train(input_list[i], target_list[i])  
         
