@@ -25,8 +25,8 @@ class neuralNetwork:
         self.wih = np.zeros((wih_size, wih_size)) 
         
         # can try random values in the future 
-        initial_thresholds = 1.0
-        initial_weights = 1.0
+        initial_thresholds = 0.4
+        initial_weights = 0.1
 
         # W11, W12, W13...
 
@@ -71,12 +71,12 @@ class neuralNetwork:
         # calculate signals into hidden layer
         hidden_inputs = np.dot(self.wih, inputs)
         # calculate the signals emerging from hidden layer
-        hidden_outputs = self.activation_function(hidden_inputs)
+        hidden_outputs = self.activation_function(hidden_inputs/10)
         
         # calculate signals into final output layer
         final_inputs = np.dot(self.who, hidden_outputs)
         # calculate the signals emerging from final output layer
-        final_outputs = self.activation_function(final_inputs)
+        final_outputs = self.activation_function(final_inputs/100)
         
         # output layer error is the (target - actual)
         output_errors = targets - final_outputs
@@ -88,6 +88,8 @@ class neuralNetwork:
         
         # update the weights for the links between the input and hidden layers
         self.wih += self.lr * np.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), np.transpose(inputs))
+        
+        print('final_net = ', final_inputs)
         
         pass
 
@@ -130,7 +132,7 @@ def main():
     epoch = 100
 
     # learning rate
-    learing_rate = 1
+    learing_rate = 0.1
 
     # numbers of extra hidden nodes
     extra_h = 10
