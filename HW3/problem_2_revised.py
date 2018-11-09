@@ -1,80 +1,74 @@
 import numpy as np
-
-# scipy.special for the sigmoid function expit()
-import scipy.special
-
+import scipy.special  # sigmoid function expit()
 import matplotlib.pyplot as plt
-
 
 class neuralNetwork:
     
-    def __init__(self, learningrate):
+    def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate):
+        # numbers of nodes of each layer
+        self.i = inputnodes + 1  # first input is for threshold
+        self.j = hiddennodes
+        self.k = outputnodes
         
-        # w_i_j, from node i to node j in the next layer
-        # The input to the first input node is -1 (to generate thresholds(theta))
+        # --- Weight Matrix ----------------------------------------------
+        # Wab: from node a to node b in the next layer
+        # The input to the first input node is -1 (to generate thresholds)
 
-        # [W11,W21,W31],
-        # [W12,W22,W32],
-        # [W13,W23,W33]
-        self.wih = np.array([[1.0, 0, 0], [0.8, 0.2, 0.2], [-0.1, -0.4, -0.2]]) 
+        # [W11,W21, ...],
+        # [W12,W22, ...],
+        # ...
 
-        # [W1, W2, W3]
-        self.who = np.array([[0.3, 0.1, -0.4]])
+        # Initailizing the weight with "Xavier initialization"
+        # Normal distribution with deviation = sqrt(1/#of nodes of previous layer)
+        self.wij = np.random.randn(self.j, self.i)*np.sqrt(1/self.i) 
+        self.wjk = np.random.randn(self.k, self.j)*np.sqrt(1/self.j) 
+        # ----------------------------------------------------------------
 
         # learning rate
         self.lr = learningrate
         
-        # activation function: sigmoid function
+        # activation function: sigmoid 
         self.activation_function = lambda x: scipy.special.expit(x)
         
         pass
 
 
-    def train(self, inputs_list, target): 
-        # convert inputs list to 2d array
-        inputs = np.array(inputs_list, ndmin=2).T
-        targets = np.array(target, ndmin=1).T #  ndmin=1 changed from the standard 
+    def train(self, inputs_list, targets_list):
+        xi = np.array(inputs_list, ndmin=2).T  #input # convert list to 2d array
+        targets = np.array(targets_list, ndmin=2).T
         
-        # calculate signals into hidden layer
-        hidden_inputs = np.dot(self.wih, inputs)
-        # calculate the signals emerging from hidden layer
-        hidden_outputs = self.activation_function(hidden_inputs)
-        
-        # calculate signals into final output layer
-        final_inputs = np.dot(self.who, hidden_outputs)
-        # calculate the signals emerging from final output layer
-        final_outputs = self.activation_function(final_inputs)
-        
-        # output layer error is the (target - actual)
-        output_errors = targets - final_outputs
-        # hidden layer error is the output_errors, split by weights, recombined at hidden nodes
-        hidden_errors = np.dot(self.who.T, output_errors) 
-        
-        # update the weights for the links between the hidden and output layers
-        self.who += self.lr * np.dot((output_errors * final_outputs * (1.0 - final_outputs)), np.transpose(hidden_inputs))
+        xj = np.dot(self.wij, xi)
+        yj = self.activation_function(xj)
 
-        # update the weights for the links between the input and hidden layers
-        self.wih += self.lr * np.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), np.transpose(inputs))
+        xk = np.dot(self.wjk, yj)
+        yk = self.activation_function(xk)
+
+        delta_k = (targets - yk) * yk *(1-yk)  # (self.k x 1) element-wise multiplication
+
+        self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))
+
+        delta_j = yj * (yj-1) * np.dot(np.transpose(self.wjk), delta_k)
+
+        self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
         
+        print('Wij: \n', self.wij)
+
+        print('\nWjk: \n', self.wjk)
+
+
         pass
 
-    
-    # query the neural network
+
     def query(self, inputs_list):
-        # convert inputs list to 2d array
-        inputs = np.array(inputs_list, ndmin=2).T
+        xi = np.array(inputs_list, ndmin=2).T  #input # convert list to 2d array
         
-        # calculate signals into hidden layer
-        hidden_inputs = np.dot(self.wih, inputs)
-        # calculate the signals emerging from hidden layer
-        hidden_outputs = self.activation_function(hidden_inputs)
+        xj = np.dot(self.wij, xi)
+        yj = self.activation_function(xj)
+
+        xk = np.dot(self.wjk, yj)
+        yk = self.activation_function(xk)
         
-        # calculate signals into final output layer
-        final_inputs = np.dot(self.who, hidden_outputs)
-        # calculate the signals emerging from final output layer
-        final_outputs = self.activation_function(final_inputs)
-        
-        return final_outputs
+        return yk
 
 
 
@@ -86,7 +80,7 @@ def main():
     epoch = 1000
 
     # learning rate
-    learing_rate = 1
+    learing_rate = 0.1
 
     # Inputs & Targets
     input_list.append([-1, -1]); target_list.append(0)
@@ -95,7 +89,7 @@ def main():
     input_list.append([1, 1]); target_list.append(0)
 
     # Create an instance of neuralNetwork with the learning rate specified
-    nn = neuralNetwork(learing_rate)
+    nn = neuralNetwork(2, 2, 1, learing_rate)
     
     # Add the threshold input
     for i in range(len(input_list)):
