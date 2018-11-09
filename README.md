@@ -1,12 +1,15 @@
 # Neural_Network
 in Python
 
-## 3-layer back-propagation network
+## 3-layer Back-propagation Neural Network
 Credits: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralnetwork/makeyourownneuralnetwork/blob/master/part2_neural_network.ipynb)
 
-![](./figures/3layers.PNG)
-
+#### Basic Structure & Indexing
 ![](./figures/network_basic.png)
+
+#### Back-propagation Training
+![](./figures/training.png)
+
 
 ```python
 import numpy
@@ -110,7 +113,7 @@ n.query([1.0, 0.5, -1.5])
 
 Solving the logical operation XOR (Exclusive-OR) using two structures above.
 
-Thresholds are added as negative inputs:
+#### Thresholds are added as negative inputs
 
 ![](./figures/network.png)
 

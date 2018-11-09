@@ -13,10 +13,12 @@ class neuralNetwork:
         # w_i_j, from node i to node j in the next layer
         # The input to the first input node is -1 (to generate thresholds(theta))
 
-        # [theta 31=1, theta 32, theta 33], [W21=0, W22, W23], [W11=0, W12, W13] 
+        # [W11,W21,W31],
+        # [W12,W22,W32],
+        # [W13,W23,W33]
         self.wih = np.array([[1.0, 0, 0], [0.8, 0.2, 0.2], [-0.1, -0.4, -0.2]]) 
 
-        # [theta, W2, W3]
+        # [W1, W2, W3]
         self.who = np.array([[0.3, 0.1, -0.4]])
 
         # learning rate
@@ -49,8 +51,8 @@ class neuralNetwork:
         hidden_errors = np.dot(self.who.T, output_errors) 
         
         # update the weights for the links between the hidden and output layers
-        self.who += self.lr * np.dot((output_errors * final_outputs * (1.0 - final_outputs)), np.transpose(hidden_outputs))
-        
+        self.who += self.lr * np.dot((output_errors * final_outputs * (1.0 - final_outputs)), np.transpose(hidden_inputs))
+
         # update the weights for the links between the input and hidden layers
         self.wih += self.lr * np.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), np.transpose(inputs))
         
