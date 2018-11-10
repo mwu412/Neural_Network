@@ -38,6 +38,7 @@ class neuralNetwork:
         pass
 
 
+    # Please refer to "README" for formulations and indexing
     def train(self, inputs_list, targets_list):
         xi = np.array(inputs_list, ndmin=2).T  #input # convert list to 2d array
         targets = np.array(targets_list, ndmin=2).T
@@ -49,12 +50,14 @@ class neuralNetwork:
         yk = self.activation_function(xk)
 
         delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
+        
+        # option 1: from "Make Your Own Neural Network" 
+        #self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
+        #delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
 
-        self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  # from "Make Your Own Neural Network"
-        delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  # from "Make ..."
-
-        #self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  # from textbook
-        #delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  # from textbook
+        # option 2: from lecure notes
+        self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  
+        delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
 
         self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
 
@@ -73,49 +76,64 @@ class neuralNetwork:
         return yk
 
 
+    # train, test, plot
+    def test(self, epoch, inputs_list, targets_list):  # list of inputs list, targets list
+        # Add the threshold input
+        for i in range(len(inputs_list)):
+            inputs_list[i] = [-1] + inputs_list[i]
+
+        # Plot the Sum-Squared Error - Epoch
+        #plt.axis([0, epoch+1, 0, 1.1])
+        plt.title('Sum-Squared Error - Epoch\n Learing Rate = ' + str(self.lr))
+        plt.xlabel('Epoch')
+        plt.ylabel('Sum-Squared Error')
+
+        # Train & Plot
+        for x in range(0, epoch):
+            for i in range(len(inputs_list)):
+                self.train(inputs_list[i], targets_list[i])  
+            
+            sum_squared_errors = 0
+
+            for i in range(len(inputs_list)):
+                sum_squared_errors += (self.query(inputs_list[i])-targets_list[i])**2
+
+            plt.scatter(x+1, sum_squared_errors)
+
+        plt.show()
+
 
 def main():
-    input_list = []
-    target_list = []
+    # train set
+    inputs_list = []  # list of inputs list
+    targets_list = []  # list of targets list
 
-    # Number of Epoch
+    # number of Epoch
     epoch = 1000
 
     # learning rate
     learing_rate = 1
 
     # Inputs & Targets
-    input_list.append([-1, -1]); target_list.append(0)
-    input_list.append([-1, 1]); target_list.append(1)
-    input_list.append([1, -1]); target_list.append(1)
-    input_list.append([1, 1]); target_list.append(0)
+    inputs_list.append([-1, -1]); targets_list.append([0])
+    inputs_list.append([-1, 1]); targets_list.append([1])
+    inputs_list.append([1, -1]); targets_list.append([1])
+    inputs_list.append([1, 1]); targets_list.append([0])
+
+    # numbers of input nodes
+    input_nodes = len(inputs_list[0])
+
+    # numbers of hidden nodes (should >= input nodes)
+    hidden_nodes = 2
+
+    # numbers of output nodes
+    output_nodes = len(targets_list[0])
 
     # Create an instance of neuralNetwork with the learning rate specified
-    nn = neuralNetwork(2, 2, 1, learing_rate)
+    nn = neuralNetwork(input_nodes, hidden_nodes, output_nodes, learing_rate)
+
+    # Train & Test & Plot sum-square errors
+    nn.test(epoch, inputs_list, targets_list)
     
-    # Add the threshold input
-    for i in range(len(input_list)):
-        input_list[i] = [-1] + input_list[i]
-
-    # Plot the Sum-Squared Error - Epoch
-    #plt.axis([0, epoch+1, 0, 1.1])
-    plt.title('Sum-Squared Error - Epoch\n Learing Rate = ' + str(learing_rate))
-    plt.xlabel('Epoch')
-    plt.ylabel('Sum-Squared Error')
-
-    # Train & Plot
-    for x in range(0, epoch):
-        for i in range(len(input_list)):
-            nn.train(input_list[i], target_list[i])  
-        
-        sum_squared_errors = 0
-
-        for i in range(len(input_list)):
-            sum_squared_errors += (nn.query(input_list[i])-target_list[i])**2
-
-        plt.scatter(x+1, sum_squared_errors)
-
-    plt.show()
-
 if __name__ == '__main__':
     main()

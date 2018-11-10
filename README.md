@@ -2,7 +2,7 @@
 in Python
 
 ## 3-layer Back-propagation Neural Network
-Credits: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralnetwork/makeyourownneuralnetwork/blob/master/part2_neural_network.ipynb)
+Reference: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralnetwork/makeyourownneuralnetwork/blob/master/part2_neural_network.ipynb)
 
 #### Basic Structure & Indexing
 ![](./figures/network_basic.png)
@@ -10,101 +10,150 @@ Credits: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralne
 #### Back-propagation Training
 ![](./figures/training.png)
 
+Class:
 
 ```python
-import numpy
-# scipy.special for the sigmoid function expit()
-import scipy.special
+import numpy as np
+import scipy.special  # sigmoid function expit()
+import matplotlib.pyplot as plt
 
-# neural network class definition
 class neuralNetwork:
     
-    
-    # initialise the neural network
     def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate):
-        # set number of nodes in each input, hidden, output layer
-        self.inodes = inputnodes
-        self.hnodes = hiddennodes
-        self.onodes = outputnodes
+        # numbers of nodes of each layer
+        self.i = inputnodes + 1  # first input is for threshold
+        self.j = hiddennodes
+        self.k = outputnodes
         
-        # link weight matrices, wih and who
-        # weights inside the arrays are w_i_j, where link is from node i to node j in the next layer
-        # w11 w21
-        # w12 w22 etc 
-        self.wih = numpy.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
-        self.who = numpy.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
+        # --- Weight Matrix ----------------------------------------------
+        # Wab: from node a to node b in the next layer
+        # The input to the first input node is -1 (to generate thresholds)
+
+        # [W11,W21, ...],
+        # [W12,W22, ...],
+        # ...
+
+        # Initailizing the weight with "Xavier initialization"
+        # Normal distribution with deviation = sqrt(1/#of nodes of previous layer)
+        #self.wij = np.random.randn(self.j, self.i)*np.sqrt(1/self.i) 
+        #self.wjk = np.random.randn(self.k, self.j)*np.sqrt(1/self.j) 
+        
+        self.wij = np.array([[1.0, 0.8, -0.1], [0, 0.2, -0.4], [0, 0.2, -0.2]]) 
+        
+        self.wjk = np.array([[0.3, 0.1, -0.4]])
+
+        # ----------------------------------------------------------------
 
         # learning rate
         self.lr = learningrate
         
-        # activation function is the sigmoid function
+        # activation function: sigmoid 
         self.activation_function = lambda x: scipy.special.expit(x)
         
         pass
 
-    
-    # train the neural network
+
+    # Please refer to "README" for formulations and indexing
     def train(self, inputs_list, targets_list):
-        # convert inputs list to 2d array
-        inputs = numpy.array(inputs_list, ndmin=2).T
-        targets = numpy.array(targets_list, ndmin=2).T
+        xi = np.array(inputs_list, ndmin=2).T  #input # convert list to 2d array
+        targets = np.array(targets_list, ndmin=2).T
         
-        # calculate signals into hidden layer
-        hidden_inputs = numpy.dot(self.wih, inputs)
-        # calculate the signals emerging from hidden layer
-        hidden_outputs = self.activation_function(hidden_inputs)
+        xj = np.dot(self.wij, xi)
+        yj = self.activation_function(xj)
+
+        xk = np.dot(self.wjk, yj)
+        yk = self.activation_function(xk)
+
+        delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
         
-        # calculate signals into final output layer
-        final_inputs = numpy.dot(self.who, hidden_outputs)
-        # calculate the signals emerging from final output layer
-        final_outputs = self.activation_function(final_inputs)
-        
-        # output layer error is the (target - actual)
-        output_errors = targets - final_outputs
-        # hidden layer error is the output_errors, split by weights, recombined at hidden nodes
-        hidden_errors = numpy.dot(self.who.T, output_errors) 
-        
-        # update the weights for the links between the hidden and output layers
-        self.who += self.lr * numpy.dot((output_errors * final_outputs * (1.0 - final_outputs)), numpy.transpose(hidden_outputs))
-        
-        # update the weights for the links between the input and hidden layers
-        self.wih += self.lr * numpy.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), numpy.transpose(inputs))
-        
+        # option 1: from "Make Your Own Neural Network" 
+        #self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
+        #delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
+
+        # option 2: from lecure notes
+        self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  
+        delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
+
+        self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
+
         pass
 
-    
-    # query the neural network
+
     def query(self, inputs_list):
-        # convert inputs list to 2d array
-        inputs = numpy.array(inputs_list, ndmin=2).T
+        xi = np.array(inputs_list, ndmin=2).T  #input # convert list to 2d array
         
-        # calculate signals into hidden layer
-        hidden_inputs = numpy.dot(self.wih, inputs)
-        # calculate the signals emerging from hidden layer
-        hidden_outputs = self.activation_function(hidden_inputs)
+        xj = np.dot(self.wij, xi)
+        yj = self.activation_function(xj)
+
+        xk = np.dot(self.wjk, yj)
+        yk = self.activation_function(xk)
         
-        # calculate signals into final output layer
-        final_inputs = numpy.dot(self.who, hidden_outputs)
-        # calculate the signals emerging from final output layer
-        final_outputs = self.activation_function(final_inputs)
-        
-        return final_outputs
+        return yk
+
+
+    # train, test, plot
+    def test(self, epoch, inputs_list, targets_list):  # list of inputs list, targets list
+        # Add the threshold input
+        for i in range(len(inputs_list)):
+            inputs_list[i] = [-1] + inputs_list[i]
+
+        # Plot the Sum-Squared Error - Epoch
+        #plt.axis([0, epoch+1, 0, 1.1])
+        plt.title('Sum-Squared Error - Epoch\n Learing Rate = ' + str(self.lr))
+        plt.xlabel('Epoch')
+        plt.ylabel('Sum-Squared Error')
+
+        # Train & Plot
+        for x in range(0, epoch):
+            for i in range(len(inputs_list)):
+                self.train(inputs_list[i], targets_list[i])  
+            
+            sum_squared_errors = 0
+
+            for i in range(len(inputs_list)):
+                sum_squared_errors += (self.query(inputs_list[i])-targets_list[i])**2
+
+            plt.scatter(x+1, sum_squared_errors)
+
+        plt.show()
 ```
-Testing:
+Example: Solving the logical operation XOR (Exclusive-OR):
+
 ```python
-# number of input, hidden and output nodes
-input_nodes = 3
-hidden_nodes = 3
-output_nodes = 3
+def main():
+    # train set
+    inputs_list = []  # list of inputs list
+    targets_list = []  # list of targets list
 
-# learning rate is 0.3
-learning_rate = 0.3
+    # number of Epoch
+    epoch = 1000
 
-# create instance of neural network
-n = neuralNetwork(input_nodes,hidden_nodes,output_nodes, learning_rate)
+    # learning rate
+    learing_rate = 1
 
-# test query (doesn't mean anything useful yet)
-n.query([1.0, 0.5, -1.5])
+    # Inputs & Targets
+    inputs_list.append([-1, -1]); targets_list.append([0])
+    inputs_list.append([-1, 1]); targets_list.append([1])
+    inputs_list.append([1, -1]); targets_list.append([1])
+    inputs_list.append([1, 1]); targets_list.append([0])
+
+    # numbers of input nodes
+    input_nodes = len(inputs_list[0])
+
+    # numbers of hidden nodes (should >= input nodes)
+    hidden_nodes = 2
+
+    # numbers of output nodes
+    output_nodes = len(targets_list[0])
+
+    # Create an instance of neuralNetwork with the learning rate specified
+    nn = neuralNetwork(input_nodes, hidden_nodes, output_nodes, learing_rate)
+
+    # Train & Test & Plot sum-square errors
+    nn.test(epoch, inputs_list, targets_list)
+    
+if __name__ == '__main__':
+    main()
 ```
 
 ### NTU Course - Intelligent Control HW3
