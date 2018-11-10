@@ -2,13 +2,26 @@
 in Python
 
 ## 3-layer Back-propagation Neural Network
-Reference: [*Make Your Own Neural Network*](https://github.com/makeyourownneuralnetwork/makeyourownneuralnetwork/blob/master/part2_neural_network.ipynb)
+Reference: 
+1. Intelligent Control 
+
+Department of Bioindustrial Mechatronics Engineering
+
+National Taiwan University 
+
+2. [*Make Your Own Neural Network*](https://github.com/makeyourownneuralnetwork/makeyourownneuralnetwork/blob/master/part2_neural_network.ipynb)
 
 #### Basic Structure & Indexing
 ![](./figures/network_basic.png)
 
 #### Back-propagation Training
 ![](./figures/training.png)
+
+#### Thresholds are added as negative inputs
+
+![](./figures/network.png)
+
+#### The Code
 
 Class:
 
@@ -155,21 +168,15 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+Example Results:
 
-### NTU Course - Intelligent Control HW3
+Convergence of sum-squared-errors
 
-![](./figures/hw3.PNG)
+![](./figures/p2_textbook.png)
 
-Solving the logical operation XOR (Exclusive-OR) using two structures above.
+![](./figures/p2_make_your_own.png)
 
-#### Thresholds are added as negative inputs
 
-![](./figures/network.png)
 
-Convergence of sum-squared-error:
 
-![](./figures/2_1_3000.png)
-![](./figures/2_1_1000_1.png)
-
-For details please refer to **HW3.pdf** and **hw3_x.py** 
 
