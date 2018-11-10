@@ -15,7 +15,7 @@ National Taiwan University
 ![](./figures/network_basic.png)
 
 #### Back-propagation Training
-![](./figures/training.png)
+![](./figures/training.jpg)
 
 #### Thresholds are added as negative inputs
 
