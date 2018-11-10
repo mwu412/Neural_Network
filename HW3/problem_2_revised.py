@@ -20,8 +20,13 @@ class neuralNetwork:
 
         # Initailizing the weight with "Xavier initialization"
         # Normal distribution with deviation = sqrt(1/#of nodes of previous layer)
-        self.wij = np.random.randn(self.j, self.i)*np.sqrt(1/self.i) 
-        self.wjk = np.random.randn(self.k, self.j)*np.sqrt(1/self.j) 
+        #self.wij = np.random.randn(self.j, self.i)*np.sqrt(1/self.i) 
+        #self.wjk = np.random.randn(self.k, self.j)*np.sqrt(1/self.j) 
+        
+        self.wij = np.array([[1.0, 0.8, -0.1], [0, 0.2, -0.4], [0, 0.2, -0.2]]) 
+        
+        self.wjk = np.array([[0.3, 0.1, -0.4]])
+
         # ----------------------------------------------------------------
 
         # learning rate
@@ -43,18 +48,15 @@ class neuralNetwork:
         xk = np.dot(self.wjk, yj)
         yk = self.activation_function(xk)
 
-        delta_k = (targets - yk) * yk *(1-yk)  # (self.k x 1) element-wise multiplication
+        delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
 
-        self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))
+        self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  # from "Make Your Own Neural Network"
+        delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  # from "Make ..."
 
-        delta_j = yj * (yj-1) * np.dot(np.transpose(self.wjk), delta_k)
+        #self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  # from textbook
+        #delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  # from textbook
 
         self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
-        
-        print('Wij: \n', self.wij)
-
-        print('\nWjk: \n', self.wjk)
-
 
         pass
 
@@ -80,7 +82,7 @@ def main():
     epoch = 1000
 
     # learning rate
-    learing_rate = 0.1
+    learing_rate = 1
 
     # Inputs & Targets
     input_list.append([-1, -1]); target_list.append(0)
@@ -96,8 +98,8 @@ def main():
         input_list[i] = [-1] + input_list[i]
 
     # Plot the Sum-Squared Error - Epoch
-    plt.axis([0, epoch+1, 0, 1.1])
-    plt.title('Sum-Squared Error - Epoch\n Learing Rate = 0.1')
+    #plt.axis([0, epoch+1, 0, 1.1])
+    plt.title('Sum-Squared Error - Epoch\n Learing Rate = ' + str(learing_rate))
     plt.xlabel('Epoch')
     plt.ylabel('Sum-Squared Error')
 
