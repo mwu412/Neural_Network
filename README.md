@@ -35,7 +35,7 @@ class neuralNetwork:
     def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate):
         # numbers of nodes of each layer
         self.i = inputnodes + 1  # first input is for threshold
-        self.j = hiddennodes
+        self.j = hiddennodes + 1 # first input is for threshold
         self.k = outputnodes
         
         # --- Weight Matrix ----------------------------------------------
@@ -48,13 +48,9 @@ class neuralNetwork:
 
         # Initailizing the weight with "Xavier initialization"
         # Normal distribution with deviation = sqrt(1/#of nodes of previous layer)
-        #self.wij = np.random.randn(self.j, self.i)*np.sqrt(1/self.i) 
-        #self.wjk = np.random.randn(self.k, self.j)*np.sqrt(1/self.j) 
+        self.wij = np.random.randn(self.j, self.i)*np.sqrt(1/self.i)
+        self.wjk = np.random.randn(self.k, self.j)*np.sqrt(1/self.j)
         
-        self.wij = np.array([[1.0, 0.8, -0.1], [0, 0.2, -0.4], [0, 0.2, -0.2]]) 
-        
-        self.wjk = np.array([[0.3, 0.1, -0.4]])
-
         # ----------------------------------------------------------------
 
         # learning rate
@@ -80,12 +76,12 @@ class neuralNetwork:
         delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
         
         # option 1: from "Make Your Own Neural Network" 
-        self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
-        delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
+        #self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
+        #delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
 
         # option 2: from lecure notes
-        #self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  
-        #delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
+        self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
+        delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
 
         self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
 
@@ -128,6 +124,13 @@ class neuralNetwork:
 
             plt.scatter(x+1, sum_squared_errors)
 
+            # label the last error
+            if x == (epoch - 1):
+                plt.annotate(sum_squared_errors[0, 0], (x+1, sum_squared_errors))
+        
+        # plot error = 0 line
+        plt.plot(np.linspace(0,epoch,epoch), [0]*epoch, 'k:', linewidth=0.5)
+
         plt.show()
 ```
 Example: Solving the logical operation XOR (Exclusive-OR):
@@ -141,10 +144,11 @@ def main():
     # --- User Inputs --------------------------------------------------
 
     # title of the plot
-    title = 'logical operation XOR - Make Your Own Neural Network method'
+    #title = 'logical operation XOR - Make Your Own Neural Network method'
+    title = 'logical operation XOR - Lecture notes method'
 
     # number of Epoch
-    epoch = 1000
+    epoch = 600
 
     # learning rate
     learing_rate = 1
