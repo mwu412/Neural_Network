@@ -80,12 +80,12 @@ class neuralNetwork:
         delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
         
         # option 1: from "Make Your Own Neural Network" 
-        #self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
-        #delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
+        self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
+        delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
 
         # option 2: from lecure notes
-        self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  
-        delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
+        #self.wjk += self.lr * np.dot(delta_k, np.transpose(xj))  
+        #delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
 
         self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
 
@@ -105,14 +105,14 @@ class neuralNetwork:
 
 
     # train, test, plot
-    def test(self, epoch, inputs_list, targets_list):  # list of inputs list, targets list
+    def test(self, epoch, inputs_list, targets_list, title):  # list of inputs list, targets list
         # Add the threshold input
         for i in range(len(inputs_list)):
             inputs_list[i] = [-1] + inputs_list[i]
 
         # Plot the Sum-Squared Error - Epoch
         #plt.axis([0, epoch+1, 0, 1.1])
-        plt.title('Sum-Squared Error - Epoch\n Learing Rate = ' + str(self.lr))
+        plt.title(title + '\nSum-Squared Error - Epoch (Learing Rate = ' + str(self.lr) + ')')
         plt.xlabel('Epoch')
         plt.ylabel('Sum-Squared Error')
 
@@ -138,6 +138,11 @@ def main():
     inputs_list = []  # list of inputs list
     targets_list = []  # list of targets list
 
+    # --- User Inputs --------------------------------------------------
+
+    # title of the plot
+    title = 'logical operation XOR - Make Your Own Neural Network method'
+
     # number of Epoch
     epoch = 1000
 
@@ -159,11 +164,13 @@ def main():
     # numbers of output nodes
     output_nodes = len(targets_list[0])
 
+    # ----------------------------------------------------------------
+
     # Create an instance of neuralNetwork with the learning rate specified
     nn = neuralNetwork(input_nodes, hidden_nodes, output_nodes, learing_rate)
 
     # Train & Test & Plot sum-square errors
-    nn.test(epoch, inputs_list, targets_list)
+    nn.test(epoch, inputs_list, targets_list, title)
     
 if __name__ == '__main__':
     main()
