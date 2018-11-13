@@ -29,8 +29,11 @@ class neuralNetwork:
         self.lr = learningrate
         
         # activation function: sigmoid 
-        self.activation_function = lambda x: scipy.special.expit(x)  # unipolar
-        # self.activation_function = lambda x: 2 * scipy.special.expit(x) - 1  # Bipolar
+        #self.activation_function = lambda x: scipy.special.expit(x)  # unipolar
+        self.activation_function = lambda x: 2 * scipy.special.expit(x) - 1  # Bipolar
+        #self.activation_function = lambda x: np.tanh(x)  # tanh
+
+        self.tanh_deriv = lambda x: 1.0 - np.tanh(x)**2
         
         pass
 
@@ -46,15 +49,19 @@ class neuralNetwork:
         xk = np.dot(self.wjk, yj)
         yk = self.activation_function(xk)
 
-        delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
-        
+        #delta_k = (targets - yk) * yk * (1 - yk)  # (self.k x 1) element-wise multiplication
+        delta_k = (targets - yk) * (1 - yk * yk)/2  # bipolar
+        #delta_k = (targets - yk) * self.tanh_deriv(yk)  # tanh
+
         # option 1: from "Make Your Own Neural Network" 
         self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
-        delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
+        #delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * yj * (1 - yj)  
+        delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * (1 - yj * yj)/2  # bipolar
+        #delta_j = np.dot(np.transpose(self.wjk), (targets - yk)) * self.tanh_deriv(yk)  # tanh 
 
         # option 2: from lecure notes
         #self.wjk += self.lr * np.dot(delta_k, np.transpose(yj))  
-        #delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)  
+        #delta_j = np.dot(np.transpose(self.wjk), delta_k) * yj * (1 - yj)
 
         self.wij += self.lr * np.dot(delta_j, np.transpose(xi))
 
@@ -96,6 +103,10 @@ class neuralNetwork:
                 sum_squared_errors += (self.query(inputs_list[i])-targets_list[i])**2
 
             plt.scatter(x+1, sum_squared_errors)
+
+            # label the last error
+            if x == (epoch - 1):
+                plt.annotate(sum_squared_errors[0, 0], (x+1, sum_squared_errors))
 
         # plot error = 0 line
         plt.plot(np.linspace(0,epoch,epoch), [0]*epoch, 'k:', linewidth=0.5)
